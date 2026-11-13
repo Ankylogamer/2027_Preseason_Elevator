@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
-import static frc.robot.subsystems.SparkUtil.*;
+import static frc.robot.subsystems.SparkUtil.ifOk;
+import static frc.robot.subsystems.SparkUtil.tryUntilOk;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.REVLibError;
@@ -13,11 +14,21 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import java.util.function.DoubleSupplier;
 
 public class ElevatorIOSpark implements ElevatorIO {
+  static final int leftCanId = 9;
+  static final int rightCanId = 9;
+
+  static final int currentLimit = 60;
+
+  static final boolean leftInverted = false;
+  static final boolean rightInverted = true;
+
+  static final double Kp = 0.0;
+  static final double Kd = 0.0;
+  static final double Ks = 0.0;
+  static final double Kv = 0.1;
 
   class TempEncoder implements RelativeEncoder {
     public double position;
@@ -40,24 +51,8 @@ public class ElevatorIOSpark implements ElevatorIO {
     }
   }
 
-  class Settings {
-    static final int leftCanId = 9;
-    static final int rightCanId = 9;
-    public static final int currentLimit = 60;
-    public static final double wheelRadiusMeters = Units.inchesToMeters(2.0);
-    public static final double motorReduction = 5;
-    public static final boolean leftInverted = false;
-    public static final boolean rightInverted = true;
-    public static final DCMotor gearbox = DCMotor.getCIM(2);
-
-    public static final double Kp = 0.0;
-    public static final double Kd = 0.0;
-    public static final double Ks = 0.0;
-    public static final double Kv = 0.1;
-  }
-
-  private final SparkMax left = new SparkMax(Settings.leftCanId, MotorType.kBrushless);
-  private final SparkMax right = new SparkMax(Settings.rightCanId, MotorType.kBrushless);
+  private final SparkMax left = new SparkMax(leftCanId, MotorType.kBrushless);
+  private final SparkMax right = new SparkMax(rightCanId, MotorType.kBrushless);
   private final RelativeEncoder leftEncoder = left.getEncoder();
   private final RelativeEncoder rightEncoder = right.getEncoder();
   private final RelativeEncoder armEncoder = new TempEncoder();
@@ -66,28 +61,24 @@ public class ElevatorIOSpark implements ElevatorIO {
 
   public ElevatorIOSpark() {
     var config = new SparkMaxConfig();
-    config
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(Settings.currentLimit)
-        .voltageCompensation(12.0);
-    config.closedLoop.pid(Settings.Kp, 0.0, Settings.Kd);
+    config.idleMode(IdleMode.kBrake).smartCurrentLimit(currentLimit).voltageCompensation(12.0);
+    config.closedLoop.pid(Kp, 0.0, Kd);
     config
         .encoder
         .positionConversionFactor(
-            2 * Math.PI / Settings.motorReduction) // Rotor Rotations -> Wheel Radians
+            2 * Math.PI / ElevatorSubsystem.motorReduction) // Rotor Rotations -> Wheel Radians
         .velocityConversionFactor(
-            (2 * Math.PI) / 60.0 / Settings.motorReduction) // Rotor RPM -> Wheel Rad/Sec
+            (2 * Math.PI) / 60.0 / ElevatorSubsystem.motorReduction) // Rotor RPM -> Wheel Rad/Sec
         .uvwMeasurementPeriod(10)
         .uvwAverageDepth(2);
 
-    // Apply config to leaders
-    config.inverted(Settings.leftInverted);
+    config.inverted(leftInverted);
     tryUntilOk(
         left,
         5,
         () ->
             left.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
-    config.inverted(Settings.rightInverted);
+    config.inverted(rightInverted);
     tryUntilOk(
         right,
         5,
