@@ -7,54 +7,54 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  public static final double minHeight = Units.inchesToMeters(0.0);
-  public static final double maxHeight = Units.inchesToMeters(30.0);
-  public static final double totalHeight = maxHeight - minHeight;
-  public static final double centerWidth = Units.inchesToMeters(5.0);
-  public static final double beltSegmentMin = centerWidth;
-  public static final double beltSegmentMax =
-      Math.sqrt(maxHeight * maxHeight + centerWidth * centerWidth);
-  public static final double beltLength = 2 * totalHeight + 2 * beltSegmentMin + 2 * beltSegmentMax;
+    public static final double minHeight = Units.inchesToMeters(0.0);
+    public static final double maxHeight = Units.inchesToMeters(30.0);
+    public static final double totalHeight = maxHeight - minHeight;
+    public static final double centerWidth = Units.inchesToMeters(5.0);
+    public static final double beltSegmentMin = centerWidth;
+    public static final double beltSegmentMax = Math.sqrt(maxHeight * maxHeight + centerWidth * centerWidth);
+    public static final double beltLength = 2 * totalHeight + 2 * beltSegmentMin + 2 * beltSegmentMax;
 
-  public static final double wheelRadius = Units.inchesToMeters(2.0);
-  public static final double armRadius = Units.inchesToMeters(5.0);
-  public static final double motorReduction = 5;
-  public static final double armReduction = 120;
+    public static final double wheelRadius = Units.inchesToMeters(2.0);
+    public static final double armRadius = Units.inchesToMeters(5.0);
+    public static final double motorReduction = 5;
+    public static final double armReduction = 120;
 
-  public static double GetBeltPosition(double position) {
-    return (position * wheelRadius / armReduction);
-  }
-  ;
+    public static double GetBeltPosition(double position) {
+        return (position * wheelRadius / armReduction);
+    }
 
-  public static double GetArmPosition(double linearPosition) {
-    return (linearPosition / armReduction) / armRadius;
-  }
-  ;
+    public static double GetHeight(double beltFeed) {
+        return Math.sqrt((beltFeed * beltFeed) / 4 - centerWidth * centerWidth);
+    }
 
-  public static double GetArmVelocity(double linearSpeed) {
-    return (linearSpeed / armRadius) / armReduction;
-  }
-  ;
+    public static double GetArmPosition(double linearPosition) {
+        return (linearPosition / armReduction) / armRadius;
+    }
 
-  private final ElevatorIO io;
-  private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
+    public static double GetArmVelocity(double linearSpeed) {
+        return (linearSpeed / armRadius) / armReduction;
+    }
 
-  LoggedMechanism2d mechanism = new LoggedMechanism2d(3, 3);
+    private final ElevatorIO io;
+    private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  public ElevatorSubsystem(ElevatorIO io) {
-    this.io = io;
-    // mechanism.
-  }
+    LoggedMechanism2d mechanism = new LoggedMechanism2d(3, 3);
 
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Elevator", inputs);
-    Logger.recordOutput("MyMechanism", mechanism);
-  }
+    public ElevatorSubsystem(ElevatorIO io) {
+        this.io = io;
+        // mechanism.
+    }
 
-  @AutoLogOutput
-  public double getLeftPositionMeters() {
-    return inputs.leftPositionRad * wheelRadius;
-  }
-}
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Elevator", inputs);
+        Logger.recordOutput("MyMechanism", mechanism);
+    }
+
+    @AutoLogOutput
+    public double getLeftPositionMeters() {
+        return inputs.leftPositionRad * wheelRadius;
+    }
+}   
