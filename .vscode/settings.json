@@ -69,5 +69,8 @@
   },
   "[java]": {
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  }
+  },
+  "java.format.comments.enabled": false,
+  "java.format.onType.enabled": false,
+  "java.format.enabled": false
 }
