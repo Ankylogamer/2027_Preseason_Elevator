@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -13,13 +14,12 @@ public class ElevatorIOSim implements ElevatorIO {
     static final double Ks = 0.0;
     static final double Kv = 0.1;
 
-    ElevatorSim elevator =
-        new ElevatorSim(
+    ElevatorSim elevator = new ElevatorSim(
             Kv, 1, gearbox, ElevatorSubsystem.minHeight, ElevatorSubsystem.maxHeight,
             false, 0);
 
-    DCMotorSim left;
-    DCMotorSim right;
+    DCMotorSim left = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.01, 1.0 / 5.0), DCMotor.getNEO(1));
+    DCMotorSim right = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.01, 1.0 / 5.0), DCMotor.getNEO(1));
 
     double leftAppliedVolts = 0.0;
     double rightAppliedVolts = 0.0;

@@ -3,15 +3,17 @@ package frc.robot.subsystems;
 import org.junit.jupiter.api.Test;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.hal.HAL;
+
 public class ElevatorTests {
 
     @Test
     public void RotateTest() {
-
+        HAL.initialize(500, 0);
         ElevatorIOSim io = new ElevatorIOSim();
         ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
         double eh = 0; // hieght of ElevatorSim
-
+        
         io.setVoltage(12, 12); // pull elevator up
         periodic(io, inputs);
         eh = io.elevator.getPositionMeters();
