@@ -14,12 +14,12 @@ public class ElevatorIOSim implements ElevatorIO {
     static final double Ks = 0.0;
     static final double Kv = 0.1;
 
-    ElevatorSim elevator = new ElevatorSim(
+    ElevatorSim elevator = new ElevatorSim( // not really using this, right now
             Kv, 1, gearbox, ElevatorSubsystem.minHeight, ElevatorSubsystem.maxHeight,
             false, 0);
 
-    DCMotorSim left = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.01, 1.0 / 5.0), DCMotor.getNEO(1));
-    DCMotorSim right = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.01, 1.0 / 5.0), DCMotor.getNEO(1));
+    DCMotorSim left = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.01,  ElevatorSubsystem.motorReduction), DCMotor.getNEO(1));
+    DCMotorSim right = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.01, ElevatorSubsystem.motorReduction), DCMotor.getNEO(1));
 
     double leftAppliedVolts = 0.0;
     double rightAppliedVolts = 0.0;
@@ -32,12 +32,15 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         if (closedLoop) {
-            leftAppliedVolts = leftFFVolts + leftPID.calculate(left.getAngularVelocityRadPerSec());
+            leftAppliedVolts =   leftFFVolts +  leftPID.calculate( left.getAngularVelocityRadPerSec());
             rightAppliedVolts = rightFFVolts + rightPID.calculate(right.getAngularVelocityRadPerSec());
         }
       
-        var common = Math.min(Math.abs(leftAppliedVolts), Math.abs(rightAppliedVolts));
-        var feed = Math.signum(leftAppliedVolts) + Math.signum(rightAppliedVolts) * common / 2;
+        var common = Math.min(Math.abs( leftAppliedVolts),
+                              Math.abs(rightAppliedVolts));
+
+        var feed = Math.signum( leftAppliedVolts)
+                 + Math.signum(rightAppliedVolts) * common / 2;
       
         // Update simulation state
         var elevatorVolts = feed; // leftAppliedVolts - rightAppliedVolts; // up and down
@@ -46,9 +49,29 @@ public class ElevatorIOSim implements ElevatorIO {
         elevator.update(0.02);
       
         left.setInputVoltage(leftAppliedVolts);
-        right.setInputVoltage(leftAppliedVolts);
+        if (leftAppliedVolts == 0){
+            left.setAngularVelocity(0);
+        }
+        right.setInputVoltage(rightAppliedVolts);
+        if (rightAppliedVolts == 0){
+            right.setAngularVelocity(0);
+        }
+
         left.update(0.02);
         right.update(0.02);
+
+        // how much belt fed into/out-of the elevator
+        double beltPositionLeft = ElevatorSubsystem.GetBeltPosition(left.getAngularPositionRad());
+        double beltPositionRight = ElevatorSubsystem.GetBeltPosition(right.getAngularPositionRad());
+        double beltHeight = ElevatorSubsystem.GetHeight(beltPositionLeft + beltPositionRight);
+
+        if (Double.isNaN(beltHeight)) {
+            left.setAngle(inputs.leftPositionRad); //reset
+            right.setAngle(inputs.rightPositionRad); //reset
+            left.setAngularVelocity(0);
+            right.setAngularVelocity(0);
+        }
+
       
         inputs.leftPositionRad = left.getAngularPositionRad();
         inputs.leftVelocityRadPerSec = left.getAngularVelocityRadPerSec();
@@ -60,10 +83,6 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.rightAppliedVolts = rightAppliedVolts;
         inputs.rightCurrentAmps = right.getCurrentDrawAmps();
       
-        // how much belt fed into the elevator
-        double beltPositionLeft = ElevatorSubsystem.GetBeltPosition(inputs.leftPositionRad);
-        double beltPositionRight = ElevatorSubsystem.GetBeltPosition(inputs.rightPositionRad);
-        double beltHeight = ElevatorSubsystem.GetHeight(beltPositionLeft + beltPositionRight);
       
         double beltPosition = ElevatorSubsystem.GetBeltPosition(inputs.rightPositionRad - inputs.leftPositionRad);
         double beltVelocity = inputs.rightVelocityRadPerSec - inputs.leftVelocityRadPerSec;
