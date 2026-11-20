@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class ElevatorCommands {
     static final double DEADBAND = 0.1;
     static final double maxSpeed = edu.wpi.first.math.util.Units.rotationsPerMinuteToRadiansPerSecond(5676);
-    static final double maxSpeedVertical = 0.001;
-    static final double maxSpeedRotate = 5.0;
+    static final double maxSpeedVertical = 0.3;
+    static final double maxSpeedRotate = 7.0;
 
 
     public static Command ElevCommand(ElevatorSubsystem elevator, DoubleSupplier elevatorSupplier, DoubleSupplier armSupplier) {
@@ -73,9 +73,9 @@ public class ElevatorCommands {
         if (greaterInput == 0.0) {
           return new WheelSpeeds(0.0, 0.0);
         }
-        double saturatedInput = (greaterInput + lesserInput) / maxSpeed;
-        leftSpeed /= saturatedInput;
-        rightSpeed /= saturatedInput;
+        // double saturatedInput = (greaterInput + lesserInput) / maxSpeed;
+        // leftSpeed /= saturatedInput;
+        // rightSpeed /= saturatedInput;
 
         return new WheelSpeeds(leftSpeed, rightSpeed);
     }

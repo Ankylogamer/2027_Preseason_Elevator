@@ -15,7 +15,7 @@ import frc.robot.Constants.Mode;
 
 public class ElevatorSubsystem extends SubsystemBase {
     public static final double minHeight = Units.inchesToMeters(0.0);
-    public static final double maxHeight = Units.inchesToMeters(30.0);
+    public static final double maxHeight = Units.inchesToMeters(50.0);
     public static final double totalHeight = maxHeight - minHeight;
     public static final double centerWidth = Units.inchesToMeters(5.0);
     public static final double beltSegmentMin = centerWidth;
@@ -30,8 +30,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final double kS = Constants.currentMode == Mode.SIM ? ElevatorIOSim.Ks : ElevatorIOSpark.Ks;
     private final double kV = Constants.currentMode == Mode.SIM ? ElevatorIOSim.Kv : ElevatorIOSpark.Kv;
 
-    LoggedMechanism2d mech = new LoggedMechanism2d(1, 2);
-    LoggedMechanismRoot2d root = mech.getRoot("climber", 0.5, 0);
+    LoggedMechanism2d mech = new LoggedMechanism2d(1.2, 2);
+    LoggedMechanismRoot2d root = mech.getRoot("climber", 0.6, 0);
     LoggedMechanismLigament2d m_elevator = root.append(new LoggedMechanismLigament2d("elevator", minHeight, 90));
     LoggedMechanismLigament2d m_wrist = m_elevator.append(new LoggedMechanismLigament2d("wrist", 0.5, 90, 6, new Color8Bit(Color.kPurple)));
 
