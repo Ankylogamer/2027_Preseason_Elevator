@@ -136,5 +136,6 @@ public class ElevatorTests {
     static void periodic(ElevatorIO io, ElevatorIOInputsAutoLogged inputs) {
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+           
     }
 }

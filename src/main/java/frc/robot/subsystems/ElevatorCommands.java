@@ -63,9 +63,11 @@ public class ElevatorCommands {
         double xSpeed = rise * maxSpeedVertical;
         double zRotation = rotate * maxSpeedRotate;
 
-        double leftSpeed = xSpeed - zRotation;
-        double rightSpeed = xSpeed + zRotation;
+        double leftSpeed = xSpeed - (zRotation/2);
+        double rightSpeed = xSpeed + (zRotation/2);
 
+        // TODO: It was doubling the zRotational Difference we think
+        
         // Find the maximum possible value of (throttle + turn) along the vector
         // that the joystick is pointing, then desaturate the wheel speeds
         double greaterInput = Math.max(Math.abs(xSpeed), Math.abs(zRotation));

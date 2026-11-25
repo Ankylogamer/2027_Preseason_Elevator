@@ -92,8 +92,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void runClosedLoop(double leftMetersPerSec, double rightMetersPerSec) {
-        double leftRadPerSec = leftMetersPerSec / wheelRadius;
-        double rightRadPerSec = rightMetersPerSec / wheelRadius;
+       //double leftRadPerSec = leftMetersPerSec / wheelRadius;
+        //double rightRadPerSec = rightMetersPerSec / wheelRadius;
+        double leftRadPerSec = leftMetersPerSec * (motorReduction / (2*Math.PI*wheelRadius));
+        double rightRadPerSec = rightMetersPerSec * (motorReduction / (2*Math.PI*wheelRadius));
+        /*TODO:Distance per Second multiplied by rotations per distance traveled should get you rotations per second ((D/T)*(R/D) = R/T)
+        and if the distance traveled is equal to the rotations times the circumfrence dvided by the motor reduction (D=Rot*(2πr)/(MoRe)) 
+        then if you replaced that distance traveled for the distanced travel in rotations per distance traveled then the Rotations would
+        cancel out and you would be left with distance per second times motor reduction divided by the circumference set equal to 
+        rotations per second((D/T)*((MoRe)/(2πr)=(R/T))*/
+
         Logger.recordOutput("Elevator/LeftSetpointRadPerSec", leftRadPerSec);
         Logger.recordOutput("Elevator/RightSetpointRadPerSec", rightRadPerSec);
         
